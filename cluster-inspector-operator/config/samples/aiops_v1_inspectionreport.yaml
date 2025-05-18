@@ -1,0 +1,9 @@
+apiVersion: aiops.zperkins.dev/v1
+kind: InspectionReport
+metadata:
+  labels:
+    app.kubernetes.io/name: cluster-inspector-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: inspectionreport-sample
+spec:
+  # TODO(user): Add fields here

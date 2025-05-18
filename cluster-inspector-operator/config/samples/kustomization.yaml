@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- aiops_v1_inspectionreport.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

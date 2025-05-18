@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - aiops.zperkins.dev
+  resources:
+  - inspectionreports
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - aiops.zperkins.dev
+  resources:
+  - inspectionreports/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - aiops.zperkins.dev
+  resources:
+  - inspectionreports/status
+  verbs:
+  - get
+  - patch
+  - update
