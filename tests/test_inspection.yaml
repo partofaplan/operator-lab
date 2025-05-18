@@ -1,0 +1,6 @@
+apiVersion: aiops.zperkins.dev/v1
+kind: InspectionReport
+metadata:
+  name: sample-inspection
+spec:
+  interval: "1h"
