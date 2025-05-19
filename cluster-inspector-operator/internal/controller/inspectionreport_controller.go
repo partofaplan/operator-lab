@@ -118,6 +118,12 @@ Output format:
 		response = "AI analysis failed. Please check connectivity to Ollama."
 	}
 
+	// Refetch the most recent version before updating
+	if err := r.Get(ctx, req.NamespacedName, &report); err != nil {
+		log.Error(err, "Failed to re-fetch InspectionReport before status update")
+		return ctrl.Result{}, err
+	}
+
 	// Write results back to status
 	report.Status.Summary = "Cluster inspection completed by AI."
 	report.Status.Recommendations = []string{response}
