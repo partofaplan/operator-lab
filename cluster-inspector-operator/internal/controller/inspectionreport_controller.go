@@ -10,6 +10,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	aiopsv1 "github.com/partofaplan/operator-lab/api/v1"
+
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
 )
 
 // InspectionReportReconciler reconciles an InspectionReport object
@@ -34,15 +39,15 @@ func (r *InspectionReportReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	// 2. Set dummy inspection results
-	report.Status.Summary = "All systems operational."
-	report.Status.Recommendations = []string{"No action needed."}
-
-	if err := r.Status().Update(ctx, &report); err != nil {
-		log.Error(err, "Failed to update InspectionReport status")
-		return ctrl.Result{}, err
+	prompt := "Act as a Kubernetes expert. Given this message: 'All systems operational.' Provide a health summary and recommendations."
+	response, err := queryOllama("llama3", prompt)
+	if err != nil {
+		log.Error(err, "Failed to get AI analysis from Ollama")
+		response = "Error: AI analysis failed."
 	}
-
-	log.Info("Inspection complete. Report updated.")
+	
+	report.Status.Summary = "AI-generated analysis:"
+	report.Status.Recommendations = []string{response}
 
 	// 3. Requeue after 1 hour
 	return ctrl.Result{RequeueAfter: time.Hour}, nil
@@ -55,3 +60,29 @@ func (r *InspectionReportReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Named("inspectionreport").
 		Complete(r)
 }
+
+func queryOllama(model, prompt string) (string, error) {
+	reqBody, _ := json.Marshal(map[string]interface{}{
+		"model":  model,
+		"prompt": prompt,
+		"stream": false,
+	})
+
+	resp, err := http.Post("http://ollama.ollama.svc.cluster.local:11434/api/generate", "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	var result struct {
+		Response string `json:"response"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return "", err
+	}
+
+	return result.Response, nil
+}
+
