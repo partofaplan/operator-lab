@@ -3,6 +3,6 @@ kind: InspectionReport
 metadata:
   name: sample-inspection
 spec:
-  interval: "1h"
+  interval: "30m"
   retryAttempts: 3
   timeoutSeconds: 360
