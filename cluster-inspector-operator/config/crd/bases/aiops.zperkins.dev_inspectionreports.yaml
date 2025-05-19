@@ -41,6 +41,10 @@ spec:
             properties:
               interval:
                 type: string
+              retryAttempts:
+                type: integer
+              timeoutSeconds:
+                type: integer
             type: object
           status:
             properties:

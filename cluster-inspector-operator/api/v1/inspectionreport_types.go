@@ -25,12 +25,14 @@ import (
 
 // InspectionReportSpec defines the desired state of InspectionReport.
 type InspectionReportSpec struct {
-    Interval string `json:"interval,omitempty"` // e.g., "1h"
+	Interval       string `json:"interval,omitempty"`
+	RetryAttempts  int    `json:"retryAttempts,omitempty"`
+	TimeoutSeconds int    `json:"timeoutSeconds,omitempty"`
 }
 
 type InspectionReportStatus struct {
-    Summary         string   `json:"summary,omitempty"`
-    Recommendations []string `json:"recommendations,omitempty"`
+	Summary         string   `json:"summary,omitempty"`
+	Recommendations []string `json:"recommendations,omitempty"`
 }
 
 // +kubebuilder:object:root=true

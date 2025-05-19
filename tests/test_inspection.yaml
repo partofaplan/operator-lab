@@ -4,3 +4,5 @@ metadata:
   name: sample-inspection
 spec:
   interval: "1h"
+  retryAttempts: 3
+  timeoutSeconds: 60

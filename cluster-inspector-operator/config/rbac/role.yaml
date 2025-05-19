@@ -30,3 +30,9 @@ rules:
   - get
   - patch
   - update
+- apiGroups: [""]
+  resources:
+    - pods
+    - nodes
+    - events
+  verbs: ["get", "list", "watch"]
