@@ -2,6 +2,7 @@ apiVersion: aiops.zperkins.dev/v1
 kind: InspectionReport
 metadata:
   name: sample-inspection
+  namespace: tools
 spec:
   interval: "30m"
   retryAttempts: 3

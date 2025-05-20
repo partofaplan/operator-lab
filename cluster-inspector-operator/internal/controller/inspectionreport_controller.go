@@ -152,7 +152,19 @@ func isPodReady(pod *corev1.Pod) bool {
 	return false
 }
 
+func promptPreview(prompt string) string {
+	if len(prompt) > 300 {
+		return prompt[:300] + "..."
+	}
+	return prompt
+}
+
 func queryOllamaWithRetry(model, prompt string, timeoutSeconds, retryAttempts int) (string, error) {
+	log := ctrl.Log.WithName("ollama-client")
+
+	log.Info("Preparing Ollama request", "model", model, "timeout", timeoutSeconds, "retries", retryAttempts)
+	log.Info("Prompt snippet", "preview", promptPreview(prompt))
+
 	client := &http.Client{Timeout: time.Duration(timeoutSeconds) * time.Second}
 	reqBody, _ := json.Marshal(map[string]interface{}{
 		"model":  model,
@@ -162,15 +174,23 @@ func queryOllamaWithRetry(model, prompt string, timeoutSeconds, retryAttempts in
 
 	url := "http://ollama.ollama.svc.cluster.local:11434/api/generate"
 
+	log = ctrl.Log.WithName("ollama-client")
+	log.Info("Using Ollama URL", "url", url)
+
 	var lastErr error
 	for i := 0; i < retryAttempts; i++ {
+		log.Info("Attempting Ollama request", "attempt", i+1)
+
 		resp, err := client.Post(url, "application/json", bytes.NewBuffer(reqBody))
 		if err != nil {
+			log.Error(err, "Ollama POST failed", "attempt", i+1)
 			lastErr = err
-			time.Sleep(2 * time.Second) // Backoff delay
+			time.Sleep(2 * time.Second)
 			continue
 		}
 		defer resp.Body.Close()
+
+		log.Info("Ollama responded", "status", resp.StatusCode)
 
 		body, _ := ioutil.ReadAll(resp.Body)
 
